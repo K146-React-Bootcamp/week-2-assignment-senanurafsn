@@ -6,17 +6,27 @@ const editModal = document.querySelector("#editModal");
 let todos = [];
 let todo;
 
-const renderTodos = () => {
+//Number of page
+let current_page =1;
+
+//How many rows to have on each page
+let rows =10;
+
+
+const renderTodos = (page =1) => {
+        //page =1 -> default value to be on page 1 by default
 	root.innerHTML = "";
 	// todoları listele
 	const table = document.createElement("table");
 	table.setAttribute("class", "table table-hover");
 
 	const thead = document.createElement("thead");
+	
+	//sıralama yapmak için title-sorting id' si tanımlandı. Butonada verilebilir.
 	thead.innerHTML = `
     <tr>
       <th scope="col">id</th>
-      <th scope="col">Başlık</th>
+      <th scope="col"> id = "title-sorting">Başlık <button>&darr;</button></th>
       <th scope="col">Kullanıcı Id</th>
       <th scope="col">Durum</th>
       <th scope="col"></th>
@@ -43,7 +53,20 @@ const renderTodos = () => {
     `;
 		tbody.appendChild(tr);
 	};
-	todos.slice(0, 15).forEach((item) => {
+	
+	//şu anki sayfanın 1 eksiği örneği 1. sayfaysa 0
+	page --;
+	
+	//10*0 = 0;
+	let start = rows* page;
+	console.log({start});
+	let end = start + rows;
+	//0 + 10 = 10;
+	console.log({end});
+	//0. index ve 10. index arası gösterilecek.
+	//hangi seçili sayfadaysak ona göre render ediliyor.
+	let paginatedItems = todos.slice(start, end);
+	paginatedItems.forEach((item) => {
 		renderItem(item);
 	});
 	table.appendChild(tbody);
@@ -54,7 +77,8 @@ const renderTodos = () => {
 			const id = Number(e.currentTarget.getAttribute("data-id"));
 			if (confirm("kaydı silmek istediğinize emin misiniz?")) {
 				todos = todos.filter((x) => x.id !== id);
-				renderTodos();
+				//aynı sayfada kalması için current_page parametresi eklendi.
+				renderTodos(current_page);
 			}
 		});
 	});
@@ -79,6 +103,7 @@ editModal.querySelector("#save").addEventListener("click", () => {
 	renderTodos();
 	editModal.style.display = "none";
 	editModal.classList.remove("show");
+
 });
 
 editModal.querySelectorAll(".close").forEach((button) => {
